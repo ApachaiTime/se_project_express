@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+
 const clothingItem = new mongoose.Schema({
   name: {
     type: String,
@@ -15,12 +16,10 @@ const clothingItem = new mongoose.Schema({
   imageUrl: {
     type: String,
     required: true,
-    validate: {
-      validator: function (value) {
-        return validator.isURL(value);
-      },
-      message: "You must enter a valid URL.",
+    validate(value) {
+      return validator.isURL(value);
     },
+    message: "You must enter a valid URL.",
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

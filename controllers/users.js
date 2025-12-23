@@ -14,10 +14,9 @@ const getUsers = (req, res) => {
           .status(NOT_FOUND_ERROR)
           .send({ message: "No users currently exist" });
       }
-      res.json(users);
+      return res.json(users);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR)
@@ -39,10 +38,10 @@ const getUser = (req, res) => {
       res.json(user);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR)
           .send({ message: "Invalid user ID" });
@@ -63,7 +62,6 @@ const createUser = (req, res) => {
       res.json(user);
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST_ERROR)

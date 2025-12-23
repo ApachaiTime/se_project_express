@@ -1,4 +1,5 @@
 const express = require("express");
+
 const router = express.Router();
 const {
   getClothingItems,
@@ -7,7 +8,7 @@ const {
 } = require("../controllers/clothingItems");
 
 router.get("/", getClothingItems);
-router.delete("/:itemId", deleteSingleClothingItem);
+router.delete("/:_id", deleteSingleClothingItem);
 router.post("/", createClothingItem);
 
 module.exports = router;

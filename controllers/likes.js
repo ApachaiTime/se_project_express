@@ -3,51 +3,51 @@ const {
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
-const { clothingItem } = require("../models/clothingitem");
-const likeItem = (req, res) =>
+const { clothingItem } = require("../models/clothingitem.js");
+const { mongoose } = require("mongoose");
+
+const likeItem = (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
+    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+  }
   clothingItem
     .findByIdAndUpdate(
-      req.params.itemId,
+      req.params._id,
       { $addToSet: { likes: req.user._id } },
       { new: true }
     )
     .orFail()
     .then((item) => res.send(item))
     .catch((err) => {
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Invalid item ID" });
-      } else if (err.name === "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
       }
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
     });
-
-const dislikeItem = (req, res) =>
+};
+const dislikeItem = (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
+    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+  }
   clothingItem
     .findByIdAndUpdate(
-      req.params.itemId,
+      req.params._id,
       { $pull: { likes: req.user._id } },
       { new: true }
     )
     .orFail()
-    .then((item) => res.send(item))
+    .then((item) => res.json(item))
     .catch((err) => {
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Invalid item ID" });
-      } else if (err.name === "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
       }
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
     });
-
+};
 module.exports = {
   likeItem,
   dislikeItem,

@@ -3,7 +3,8 @@ const {
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
-const { clothingItem } = require("../models/clothingitem");
+const mongoose = require("mongoose");
+const { clothingItem } = require("../models/clothingitem.js");
 
 const getClothingItems = (req, res) => {
   clothingItem
@@ -11,34 +12,32 @@ const getClothingItems = (req, res) => {
     .then((items) => {
       res.json(items);
     })
-    .catch(() => {
-      return res
+    .catch(() =>
+      res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
+        .send({ message: "An error occurred on the server" })
+    );
 };
 
 const deleteSingleClothingItem = (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
+    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+  }
+
   // handle deleting a single clothing item
   clothingItem
-    .findByIdAndDelete(req.params.itemId)
+    .findByIdAndDelete(req.params._id)
     .orFail()
-    .then((clothingItem) => res.send({ clothingItem }))
+    .then((item) => res.json(item))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Invalid clothing item ID" });
-      } else if (err.name === "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res
           .status(NOT_FOUND_ERROR)
           .send({ message: "Clothing item not found" });
-      } else {
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error occurred on the server" });
       }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
     });
 };
 
@@ -53,18 +52,16 @@ const createClothingItem = (req, res) => {
       likes: req.body.likes,
       createdAt: new Date(),
     })
-    .then((clothingItem) => res.send({ clothingItem }))
+    .then((item) => res.json(item))
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Failed to create clothing item" });
-      } else {
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error occurred on the server" });
+        return res.status(BAD_REQUEST_ERROR).send({
+          message: "Failed to create clothing item invalid data fields",
+        });
       }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
     });
 };
 

@@ -1,6 +1,8 @@
 const express = require("express");
+
 const app = express();
 const mongoose = require("mongoose");
+
 const { PORT = 3001 } = process.env;
 mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
 app.use(express.json());
@@ -16,10 +18,9 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use("/items", likeRoutes);
 app.use("/users", usersRoutes);
 app.use("/items", clothingItemsRoutes);
-app;
+app.use("/items", likeRoutes);
 
 app.use((req, res) => {
   res.status(404).send({ message: "Requested resource not found" });
