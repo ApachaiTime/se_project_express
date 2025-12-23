@@ -1,10 +1,10 @@
+const mongoose = require("mongoose");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
-const mongoose = require("mongoose");
-const { clothingItem } = require("../models/clothingitem.js");
+const { clothingItem } = require("../models/clothingItem");
 
 const getClothingItems = (req, res) => {
   clothingItem
@@ -25,7 +25,7 @@ const deleteSingleClothingItem = (req, res) => {
   }
 
   // handle deleting a single clothing item
-  clothingItem
+  return clothingItem
     .findByIdAndDelete(req.params._id)
     .orFail()
     .then((item) => res.json(item))

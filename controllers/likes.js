@@ -1,16 +1,16 @@
+const { mongoose } = require("mongoose");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
-const { clothingItem } = require("../models/clothingitem.js");
-const { mongoose } = require("mongoose");
+const { clothingItem } = require("../models/clothingItem");
 
 const likeItem = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
-  clothingItem
+  return clothingItem
     .findByIdAndUpdate(
       req.params._id,
       { $addToSet: { likes: req.user._id } },
@@ -31,7 +31,7 @@ const dislikeItem = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
-  clothingItem
+  return clothingItem
     .findByIdAndUpdate(
       req.params._id,
       { $pull: { likes: req.user._id } },
