@@ -49,7 +49,6 @@ const createClothingItem = (req, res) => {
       weather: req.body.weather,
       owner: req.user._id,
       imageUrl: req.body.imageUrl,
-      likes: req.body.likes,
       createdAt: new Date(),
     })
     .then((item) => res.json(item))

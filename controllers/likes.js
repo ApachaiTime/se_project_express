@@ -1,4 +1,4 @@
-const { mongoose } = require("mongoose");
+const  mongoose  = require("mongoose");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,

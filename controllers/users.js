@@ -9,11 +9,7 @@ const getUsers = (req, res) => {
   userSchema
     .find({})
     .then((users) => {
-      if (users.length === 0) {
-        return res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: "No users currently exist" });
-      }
+      
       return res.json(users);
     })
     .catch((err) => {
