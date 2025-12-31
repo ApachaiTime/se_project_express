@@ -8,10 +8,8 @@ const {
 const getUsers = (req, res) => {
   userSchema
     .find({})
-    .then((users) => {
-      
-      return res.json(users);
-    })
+    .then((users) => res.json(users))
+
     .catch((err) => {
       if (err.name === "CastError") {
         return res
