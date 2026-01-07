@@ -122,7 +122,7 @@ const createUser = (req, res) =>
       })
     )
     .then((newUser) => {
-      createdUser = newUser.toObject();
+        const createdUser = newUser.toObject();
       delete createdUser.password;
       res.json(createdUser);
     })
