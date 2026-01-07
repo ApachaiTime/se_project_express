@@ -1,4 +1,4 @@
-const  mongoose  = require("mongoose");
+const mongoose = require("mongoose");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
@@ -17,7 +17,7 @@ const likeItem = (req, res) => {
       { new: true }
     )
     .orFail()
-    .then((item) => res.send(item))
+    .then((item) => res.json(item))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });

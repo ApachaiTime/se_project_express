@@ -3,6 +3,7 @@ const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN_ERROR,
 } = require("../utils/errors");
 const { clothingItem } = require("../models/clothingItem");
 
@@ -24,21 +25,35 @@ const deleteSingleClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  // handle deleting a single clothing item
-  return clothingItem
-    .findByIdAndDelete(req.params._id)
-    .orFail()
-    .then((item) => res.json(item))
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: "Clothing item not found" });
-      }
+  clothingItem.findById(req.params._id).then((item) => {
+    if (!item) {
       return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
+        .status(NOT_FOUND_ERROR)
+        .send({ message: "Clothing item not found" });
+    }
+    if (item.owner !== req.user._id) {
+      return res
+        .status(FORBIDDEN_ERROR)
+        .send({ message: "You can only delete your own items" });
+    }
+
+    return clothingItem
+      .findByIdAndDelete(req.params._id)
+      .orFail()
+      .then((item) => res.json(item))
+
+      .catch((err) => {
+        if (err.name === "CastError") {
+          return res
+            .status(NOT_FOUND_ERROR)
+            .send({ message: "Clothing item not found" });
+        }
+
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error occurred on the server" });
+      });
+  });
 };
 
 const createClothingItem = (req, res) => {

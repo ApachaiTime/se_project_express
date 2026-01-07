@@ -1,12 +1,74 @@
-const userSchema = require("../models/user");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
+  CONFLICT_ERROR,
 } = require("../utils/errors");
+const user = require("../models/user");
+
+const login = (req, res) => {
+  // handle user login
+  const { email, password } = req.body;
+  user
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      if (err.message === "User not found") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "Invalid email or password" });
+      }
+      if (err.message === "Illegal arguments: undefined, string") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "Email and password must be provided" });
+      }
+      if (err.message === "Incorrect password") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "Invalid email or password" });
+      }
+
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
+    });
+};
+
+const updateUser = (req, res) => {
+  user
+    .findByIdAndUpdate(
+      req.user.id,
+      { name: req.body.name, avatar: req.body.avatar },
+      { new: true, runValidators: true }
+    )
+    .orFail()
+    .then((user) => res.json(user))
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .send({ message: "Invalid data provided for update" });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred on the server" });
+    });
+};
 
 const getUsers = (req, res) => {
-  userSchema
+  user
     .find({})
     .then((users) => res.json(users))
 
@@ -19,14 +81,13 @@ const getUsers = (req, res) => {
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
-      // handle rendering users
     });
 };
 
-const getUser = (req, res) => {
+const getCurrentUser = (req, res) => {
   // handle returning users
-  userSchema
-    .findById(req.params.userId)
+  user
+    .findById(req.user.id)
     .orFail()
     .then((user) => {
       res.json(user);
@@ -48,11 +109,18 @@ const getUser = (req, res) => {
 
 const createUser = (req, res) => {
   // handle user creation
-  const { name, avatar } = req.body;
-
-  userSchema
-    .create({ name, avatar })
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      return user.create({
+        name: req.body.name,
+        avatar: req.body.avatar,
+        email: req.body.email,
+        password: hash,
+      });
+    })
     .then((user) => {
+      delete user._doc.password;
       res.json(user);
     })
     .catch((err) => {
@@ -61,10 +129,17 @@ const createUser = (req, res) => {
           .status(BAD_REQUEST_ERROR)
           .send({ message: "Invalid data provided" });
       }
+
+      if (err.name === "MongoServerError" && err.code === 11000) {
+        return res
+          .status(CONFLICT_ERROR)
+          .send({ message: "Email already in use" });
+      }
+
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     }); // Debugging
 };
 
-module.exports = { getUsers, getUser, createUser };
+module.exports = { getUsers, getCurrentUser, createUser, login, updateUser };

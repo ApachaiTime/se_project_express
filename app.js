@@ -1,5 +1,5 @@
 const express = require("express");
-
+const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 
@@ -11,14 +11,8 @@ const clothingItemsRoutes = require("./routes/clothingItems");
 const likeRoutes = require("./routes/likes");
 const usersRoutes = require("./routes/users");
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "69449650ebf7109c2c6e0fd6", // Example user ID
-  };
-
-  next();
-});
-app.use("/users", usersRoutes);
+app.use(cors());
+app.use("/", usersRoutes);
 app.use("/items", clothingItemsRoutes);
 app.use("/items", likeRoutes);
 
