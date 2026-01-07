@@ -14,8 +14,8 @@ const login = (req, res) => {
   const { email, password } = req.body;
   user
     .findUserByCredentials(email, password)
-    .then(() => {
-      const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+    .then((userCred) => {
+      const token = jwt.sign({ id: userCred._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.send({ token });
@@ -51,7 +51,7 @@ const updateUser = (req, res) => {
       { new: true, runValidators: true }
     )
     .orFail()
-    .then(() => res.json(user))
+    .then((updatedUser) => res.json(updatedUser))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
@@ -78,6 +78,7 @@ const getUsers = (req, res) => {
           .status(BAD_REQUEST_ERROR)
           .send({ message: "An error occurred getting users" });
       }
+
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
@@ -86,11 +87,12 @@ const getUsers = (req, res) => {
 
 const getCurrentUser = (req, res) => {
   // handle returning users
+
   user
     .findById(req.user.id)
     .orFail()
-    .then(() => {
-      res.json(user);
+    .then((currentUser) => {
+      res.json(currentUser);
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -120,7 +122,7 @@ const createUser = (req, res) =>
       });
     })
     .then((newUser) => {
-      delete newUser.doc.password;
+      delete newUser._doc.password;
       res.json(newUser);
     })
     .catch((err) => {
@@ -140,6 +142,5 @@ const createUser = (req, res) =>
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred on the server" });
     }); // Debugging
-};
 
 module.exports = { getUsers, getCurrentUser, createUser, login, updateUser };
