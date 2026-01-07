@@ -7,6 +7,7 @@ const {
   updateUser,
 } = require("../controllers/users");
 const auth = require("../middlewares/auth");
+
 const router = express.Router();
 
 router.get("/users", auth, getUsers);

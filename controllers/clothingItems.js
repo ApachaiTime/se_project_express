@@ -25,7 +25,7 @@ const deleteSingleClothingItem = (req, res) => {
     return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
   }
 
-  clothingItem.findById(req.params._id).then((item) => {
+  return clothingItem.findById(req.params._id).then((item) => {
     if (!item) {
       return res
         .status(NOT_FOUND_ERROR)
@@ -40,7 +40,7 @@ const deleteSingleClothingItem = (req, res) => {
     return clothingItem
       .findByIdAndDelete(req.params._id)
       .orFail()
-      .then((item) => res.json(item))
+      .then(() => res.json(item))
 
       .catch((err) => {
         if (err.name === "CastError") {

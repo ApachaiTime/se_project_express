@@ -14,7 +14,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
   user
     .findUserByCredentials(email, password)
-    .then((user) => {
+    .then(() => {
       const token = jwt.sign({ id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
@@ -51,7 +51,7 @@ const updateUser = (req, res) => {
       { new: true, runValidators: true }
     )
     .orFail()
-    .then((user) => res.json(user))
+    .then(() => res.json(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res
@@ -89,7 +89,7 @@ const getCurrentUser = (req, res) => {
   user
     .findById(req.user.id)
     .orFail()
-    .then((user) => {
+    .then(() => {
       res.json(user);
     })
     .catch((err) => {
@@ -107,7 +107,7 @@ const getCurrentUser = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res) =>
   // handle user creation
   bcrypt
     .hash(req.body.password, 10)
@@ -119,9 +119,9 @@ const createUser = (req, res) => {
         password: hash,
       });
     })
-    .then((user) => {
-      delete user._doc.password;
-      res.json(user);
+    .then((newUser) => {
+      delete newUser.doc.password;
+      res.json(newUser);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
