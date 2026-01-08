@@ -6,16 +6,23 @@ const {
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
   CONFLICT_ERROR,
+  FORBIDDEN_ERROR,
+  UNAUTHORIZED_ERROR,
 } = require("../utils/errors");
 const user = require("../models/user");
 
 const login = (req, res) => {
   // handle user login
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST_ERROR)
+      .send({ message: "Email and password must be provided" });
+  }
   user
     .findUserByCredentials(email, password)
     .then((userCred) => {
-      const token = jwt.sign({ id: userCred._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: userCred._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.send({ token });
@@ -23,17 +30,13 @@ const login = (req, res) => {
     .catch((err) => {
       if (err.message === "User not found") {
         return res
-          .status(BAD_REQUEST_ERROR)
+          .status(UNAUTHORIZED_ERROR)
           .send({ message: "Invalid email or password" });
       }
-      if (err.message === "Illegal arguments: undefined, string") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "Email and password must be provided" });
-      }
+
       if (err.message === "Incorrect password") {
         return res
-          .status(BAD_REQUEST_ERROR)
+          .status(UNAUTHORIZED_ERROR)
           .send({ message: "Invalid email or password" });
       }
 
@@ -46,7 +49,7 @@ const login = (req, res) => {
 const updateUser = (req, res) => {
   user
     .findByIdAndUpdate(
-      req.user.id,
+      req.user._id,
       { name: req.body.name, avatar: req.body.avatar },
       { new: true, runValidators: true }
     )
@@ -67,29 +70,11 @@ const updateUser = (req, res) => {
     });
 };
 
-const getUsers = (req, res) => {
-  user
-    .find({})
-    .then((users) => res.json(users))
-
-    .catch((err) => {
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .send({ message: "An error occurred getting users" });
-      }
-
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
-    });
-};
-
 const getCurrentUser = (req, res) => {
   // handle returning users
 
   user
-    .findById(req.user.id)
+    .findById(req.user._id)
     .orFail()
     .then((currentUser) => {
       res.json(currentUser);
@@ -122,7 +107,7 @@ const createUser = (req, res) =>
       })
     )
     .then((newUser) => {
-        const createdUser = newUser.toObject();
+      const createdUser = newUser.toObject();
       delete createdUser.password;
       res.json(createdUser);
     })
@@ -144,4 +129,4 @@ const createUser = (req, res) =>
         .send({ message: "An error occurred on the server" });
     }); // Debugging
 
-module.exports = { getUsers, getCurrentUser, createUser, login, updateUser };
+module.exports = { getCurrentUser, createUser, login, updateUser };

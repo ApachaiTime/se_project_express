@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { NOT_FOUND_ERROR } = require("./utils/errors");
 
 const app = express();
 const mongoose = require("mongoose");
@@ -18,7 +19,7 @@ app.use("/items", clothingItemsRoutes);
 app.use("/items", likeRoutes);
 
 app.use((req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+  res.status(NOT_FOUND_ERROR).send({ message: "Requested resource not found" });
 });
 app.listen(PORT, () => {
   console.log(`App listening at http://localhost:${PORT}`);

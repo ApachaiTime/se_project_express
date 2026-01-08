@@ -31,7 +31,7 @@ const deleteSingleClothingItem = (req, res) => {
         .status(NOT_FOUND_ERROR)
         .send({ message: "Clothing item not found" });
     }
-    if (item.owner !== req.user._id) {
+    if (!item.owner.equals(req.user._id)) {
       return res
         .status(FORBIDDEN_ERROR)
         .send({ message: "You can only delete your own items" });
