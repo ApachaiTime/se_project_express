@@ -6,7 +6,6 @@ const {
   NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
   CONFLICT_ERROR,
-  FORBIDDEN_ERROR,
   UNAUTHORIZED_ERROR,
 } = require("../utils/errors");
 const user = require("../models/user");
@@ -19,7 +18,7 @@ const login = (req, res) => {
       .status(BAD_REQUEST_ERROR)
       .send({ message: "Email and password must be provided" });
   }
-  user
+  return user
     .findUserByCredentials(email, password)
     .then((userCred) => {
       const token = jwt.sign({ _id: userCred._id }, JWT_SECRET, {
