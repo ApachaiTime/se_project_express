@@ -1,14 +1,12 @@
 const mongoose = require("mongoose");
-const {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  INTERNAL_SERVER_ERROR,
-} = require("../utils/errors");
+const { NotFoundError } = require("../middlewares/not-found-err");
+const { BadRequestError } = require("../middlewares/bad-request-err");
+
 const { clothingItem } = require("../models/clothingItem");
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+    throw new BadRequestError("Invalid item ID");
   }
   return clothingItem
     .findByIdAndUpdate(
@@ -20,16 +18,14 @@ const likeItem = (req, res) => {
     .then((item) => res.json(item))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
+        return next(new NotFoundError("Item not found"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal server error" });
+      return next(err);
     });
 };
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+    throw new BadRequestError("Invalid item ID");
   }
   return clothingItem
     .findByIdAndUpdate(
@@ -41,11 +37,9 @@ const dislikeItem = (req, res) => {
     .then((item) => res.json(item))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
+        return next(new NotFoundError("Item not found"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal server error" });
+      return next(err);
     });
 };
 module.exports = {

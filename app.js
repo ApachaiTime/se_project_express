@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const errorHandler = require("./middlewares/error-handler");
 
 const app = express();
 const mongoose = require("mongoose");
@@ -18,9 +19,11 @@ app.use("/", usersRoutes);
 app.use("/items", clothingItemsRoutes);
 app.use("/items", likeRoutes);
 
-app.use((req, res) => {
+app.use((req, res, next) => {
   res.status(NOT_FOUND_ERROR).send({ message: "Requested resource not found" });
 });
+
+app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`App listening at http://localhost:${PORT}`);
 });

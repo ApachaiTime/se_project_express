@@ -1,4 +1,9 @@
 const mongoose = require("mongoose");
+const { NotFoundError } = require("../middlewares/not-found-err");
+const { UnauthorizedError } = require("../middlewares/unauth-err");
+const { ConflictError } = require("../middlewares/conflict-err");
+const { ForbiddenError } = require("../middlewares/forbidden-err");
+const { BadRequestError } = require("../middlewares/bad-request-err");
 const {
   BAD_REQUEST_ERROR,
   NOT_FOUND_ERROR,
@@ -7,56 +12,42 @@ const {
 } = require("../utils/errors");
 const { clothingItem } = require("../models/clothingItem");
 
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res, next) => {
   clothingItem
     .find({})
     .then((items) => {
       res.json(items);
     })
-    .catch(() =>
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" })
-    );
+    .catch((err) => next(err));
 };
 
-const deleteSingleClothingItem = (req, res) => {
+const deleteSingleClothingItem = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    return res.status(BAD_REQUEST_ERROR).send({ message: "Invalid item ID" });
+    return next(new BadRequestError("Invalid item ID"));
   }
 
   return clothingItem.findById(req.params._id).then((item) => {
     if (!item) {
-      return res
-        .status(NOT_FOUND_ERROR)
-        .send({ message: "Clothing item not found" });
+      return next(new NotFoundError("Clothing item not found"));
     }
     if (!item.owner.equals(req.user._id)) {
-      return res
-        .status(FORBIDDEN_ERROR)
-        .send({ message: "You can only delete your own items" });
+      return next(new ForbiddenError("You can only delete your own items"));
     }
 
     return clothingItem
       .findByIdAndDelete(req.params._id)
-      .orFail()
       .then(() => res.json(item))
 
       .catch((err) => {
         if (err.name === "CastError") {
-          return res
-            .status(NOT_FOUND_ERROR)
-            .send({ message: "Clothing item not found" });
+          return next(new NotFoundError("Clothing item not found"));
         }
-
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error occurred on the server" });
+        next(err);
       });
   });
 };
 
-const createClothingItem = (req, res) => {
+const createClothingItem = (req, res, next) => {
   // handle creating a new clothing item
   clothingItem
     .create({
@@ -69,13 +60,13 @@ const createClothingItem = (req, res) => {
     .then((item) => res.json(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST_ERROR).send({
-          message: "Failed to create clothing item invalid data fields",
-        });
+        next(
+          new BadRequestError(
+            "Failed to create clothing item invalid data fields"
+          )
+        );
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred on the server" });
+      next(err);
     });
 };
 
