@@ -27,15 +27,6 @@ npm run dev
 
 Launches the server with hot reloading enabled.
 
-Testing Requirements
-
-Before committing your code, update the file sprint.txt in the root directory.
-
-sprint.txt must contain the current sprint number
-
-Example:
-
-12
-Goal
+Goal:
 
 The goal of this project is to create a fully functional backend server with an API, user authorization, database persistence, and deployment readiness for a remote environment.
