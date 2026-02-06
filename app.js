@@ -18,6 +18,11 @@ const likeRoutes = require("./routes/likes");
 const usersRoutes = require("./routes/users");
 app.use(requestLogger);
 app.use(cors());
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
 app.use("/", usersRoutes);
 app.use("/items", clothingItemsRoutes);
 app.use("/items", likeRoutes);
