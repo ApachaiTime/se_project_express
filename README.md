@@ -30,3 +30,9 @@ Launches the server with hot reloading enabled.
 Goal:
 
 The goal of this project is to create a fully functional backend server with an API, user authorization, database persistence, and deployment readiness for a remote environment.
+
+- [Project Link](seprojectreact-production.up.railway.app)
+
+- [Front-end repo](https://github.com/ApachaiTime/se_project_react)
+
+- [Project Pitch Video](https://www.loom.com/share/066f15ee537747c5a78a692db414f1f4)
