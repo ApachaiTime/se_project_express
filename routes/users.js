@@ -1,5 +1,10 @@
 const express = require("express");
 const {
+  authValidation,
+  userValidation,
+  userUpdateValidation,
+} = require("../middlewares/validation");
+const {
   getCurrentUser,
   createUser,
   login,
@@ -9,8 +14,8 @@ const auth = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.get("/users/me", auth, getCurrentUser);
-router.post("/signin", login);
-router.post("/signup", createUser);
-router.patch("/users/me", auth, updateUser);
+router.get("/users/me", authValidation, auth, getCurrentUser);
+router.post("/signin", authValidation, login);
+router.post("/signup", userValidation, createUser);
+router.patch("/users/me", userUpdateValidation, auth, updateUser);
 module.exports = router;
