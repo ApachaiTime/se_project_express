@@ -90,7 +90,7 @@ const createUser = (req, res, next) =>
     .then((newUser) => {
       const createdUser = newUser.toObject();
       delete createdUser.password;
-      res.status(201).res.json(createdUser);
+      res.status(201).json(createdUser);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {

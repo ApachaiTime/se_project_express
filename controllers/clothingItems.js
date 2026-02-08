@@ -48,7 +48,7 @@ const createClothingItem = (req, res, next) => {
       imageUrl: req.body.imageUrl,
       createdAt: new Date(),
     })
-    .then((item) => res.json(item))
+    .then((item) => res.status(201).json(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(
