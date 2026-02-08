@@ -1,5 +1,6 @@
 const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
+
 const validateURL = (value, helpers) => {
   if (validator.isURL(value)) {
     return value;
@@ -17,6 +18,7 @@ const clothingValidation = celebrate({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
+    weather: Joi.string.value("hot", "warm", "cold").required(),
   }),
 });
 

@@ -1,15 +1,7 @@
 const mongoose = require("mongoose");
 const { NotFoundError } = require("../middlewares/not-found-err");
-const { UnauthorizedError } = require("../middlewares/unauth-err");
-const { ConflictError } = require("../middlewares/conflict-err");
 const { ForbiddenError } = require("../middlewares/forbidden-err");
 const { BadRequestError } = require("../middlewares/bad-request-err");
-const {
-  BAD_REQUEST_ERROR,
-  NOT_FOUND_ERROR,
-  INTERNAL_SERVER_ERROR,
-  FORBIDDEN_ERROR,
-} = require("../utils/errors");
 const { clothingItem } = require("../models/clothingItem");
 
 const getClothingItems = (req, res, next) => {
@@ -37,7 +29,6 @@ const deleteSingleClothingItem = (req, res, next) => {
     return clothingItem
       .findByIdAndDelete(req.params._id)
       .then(() => res.json(item))
-
       .catch((err) => {
         if (err.name === "CastError") {
           return next(new NotFoundError("Clothing item not found"));
@@ -57,7 +48,7 @@ const createClothingItem = (req, res, next) => {
       imageUrl: req.body.imageUrl,
       createdAt: new Date(),
     })
-    .then((item) => res.status(201).res.json(item))
+    .then((item) => res.json(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(

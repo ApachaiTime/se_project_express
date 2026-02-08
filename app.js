@@ -1,12 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const errorHandler = require("./middlewares/error-handler");
 const { errors } = require("celebrate");
+const mongoose = require("mongoose");
+const errorHandler = require("./middlewares/error-handler");
+
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
-const mongoose = require("mongoose");
+
 const { NOT_FOUND_ERROR } = require("./utils/errors");
 
 const { PORT = 3001, MONGODB_URI = "mongodb://127.0.0.1:27017/wtwr_db" } =
@@ -17,6 +19,7 @@ app.use(express.json());
 const clothingItemsRoutes = require("./routes/clothingItems");
 const likeRoutes = require("./routes/likes");
 const usersRoutes = require("./routes/users");
+
 app.use(requestLogger);
 app.use(cors());
 app.get("/crash-test", () => {
