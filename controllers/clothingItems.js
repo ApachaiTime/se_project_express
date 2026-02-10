@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
-const { NotFoundError } = require("../middlewares/not-found-err");
-const { ForbiddenError } = require("../middlewares/forbidden-err");
-const { BadRequestError } = require("../middlewares/bad-request-err");
+const { NotFoundError } = require("../utils/errors/not-found-err");
+const { ForbiddenError } = require("../utils/errors/forbidden-err");
+const { BadRequestError } = require("../utils/errors/bad-request-err");
 const { clothingItem } = require("../models/clothingItem");
 
 const getClothingItems = (req, res, next) => {
@@ -13,12 +12,8 @@ const getClothingItems = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const deleteSingleClothingItem = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    return next(new BadRequestError("Invalid item ID"));
-  }
-
-  return clothingItem.findById(req.params._id).then((item) => {
+const deleteSingleClothingItem = (req, res, next) =>
+  clothingItem.findById(req.params._id).then((item) => {
     if (!item) {
       return next(new NotFoundError("Clothing item not found"));
     }
@@ -33,11 +28,9 @@ const deleteSingleClothingItem = (req, res, next) => {
         if (err.name === "CastError") {
           return next(new NotFoundError("Clothing item not found"));
         }
-        next(err);
+        return next(err);
       });
   });
-};
-
 const createClothingItem = (req, res, next) => {
   // handle creating a new clothing item
   clothingItem
@@ -48,7 +41,7 @@ const createClothingItem = (req, res, next) => {
       imageUrl: req.body.imageUrl,
       createdAt: new Date(),
     })
-    .then((item) => res.status(201).json(item))
+    .then((item) => res.status(201).res.json(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(
@@ -57,7 +50,7 @@ const createClothingItem = (req, res, next) => {
           )
         );
       }
-      next(err);
+      return next(err);
     });
 };
 

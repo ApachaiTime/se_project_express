@@ -47,7 +47,11 @@ const authValidation = celebrate({
 
 const idValidation = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required().hex().length(24),
+    _id: Joi.string().required().hex().length(24).messages({
+      "string.hex": "Invalid item ID",
+      "string.length": "Invalid item ID",
+      "string.required": "Invalid item ID",
+    }),
   }),
 });
 

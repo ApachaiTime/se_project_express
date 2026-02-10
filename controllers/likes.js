@@ -1,14 +1,8 @@
-const mongoose = require("mongoose");
-const { NotFoundError } = require("../middlewares/not-found-err");
-const { BadRequestError } = require("../middlewares/bad-request-err");
-
+const { NotFoundError } = require("../utils/errors/not-found-err");
 const { clothingItem } = require("../models/clothingItem");
 
-const likeItem = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    throw new BadRequestError("Invalid item ID");
-  }
-  return clothingItem
+const likeItem = (req, res, next) =>
+  clothingItem
     .findByIdAndUpdate(
       req.params._id,
       { $addToSet: { likes: req.user._id } },
@@ -22,12 +16,9 @@ const likeItem = (req, res, next) => {
       }
       return next(err);
     });
-};
-const dislikeItem = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params._id)) {
-    throw new BadRequestError("Invalid item ID");
-  }
-  return clothingItem
+
+const dislikeItem = (req, res, next) =>
+  clothingItem
     .findByIdAndUpdate(
       req.params._id,
       { $pull: { likes: req.user._id } },
@@ -41,7 +32,7 @@ const dislikeItem = (req, res, next) => {
       }
       return next(err);
     });
-};
+
 module.exports = {
   likeItem,
   dislikeItem,

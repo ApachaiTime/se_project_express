@@ -1,10 +1,10 @@
 const express = require("express");
 const auth = require("../middlewares/auth");
-
 const {
   clothingValidation,
   idValidation,
 } = require("../middlewares/validation");
+
 const router = express.Router();
 const {
   getClothingItems,

@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { NotFoundError } = require("../middlewares/not-found-err");
-const { UnauthorizedError } = require("../middlewares/unauth-err");
-const { ConflictError } = require("../middlewares/conflict-err");
-const { BadRequestError } = require("../middlewares/bad-request-err");
+const { NotFoundError } = require("../utils/errors/not-found-err");
+const { UnauthorizedError } = require("../utils/errors/unauth-err");
+const { ConflictError } = require("../utils/errors/conflict-err");
+const { BadRequestError } = require("../utils/errors/bad-request-err");
 
 const user = require("../models/user");
 
@@ -12,7 +12,7 @@ const login = (req, res, next) => {
   // handle user login
   const { email, password } = req.body;
   if (!email || !password) {
-    throw new BadRequestError("Email and password must be provided");
+    next(new BadRequestError("Email and password must be provided"));
   }
   return user
     .findUserByCredentials(email, password)
@@ -62,7 +62,7 @@ const getCurrentUser = (req, res, next) => {
 
     .then((currentUser) => {
       if (currentUser == null) {
-        throw new NotFoundError("User not found");
+        next(new NotFoundError("User not found"));
       }
       res.json(currentUser);
     })
