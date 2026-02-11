@@ -41,10 +41,10 @@ const createClothingItem = (req, res, next) => {
       imageUrl: req.body.imageUrl,
       createdAt: new Date(),
     })
-    .then((item) => res.status(201).res.json(item))
+    .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
+       return next(
           new BadRequestError(
             "Failed to create clothing item invalid data fields"
           )

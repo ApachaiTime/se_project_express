@@ -12,7 +12,7 @@ const login = (req, res, next) => {
   // handle user login
   const { email, password } = req.body;
   if (!email || !password) {
-    next(new BadRequestError("Email and password must be provided"));
+   return next(new BadRequestError("Email and password must be provided"));
   }
   return user
     .findUserByCredentials(email, password)
@@ -62,7 +62,7 @@ const getCurrentUser = (req, res, next) => {
 
     .then((currentUser) => {
       if (currentUser == null) {
-        next(new NotFoundError("User not found"));
+       return next(new NotFoundError("User not found"));
       }
       res.json(currentUser);
     })
